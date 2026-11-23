@@ -1,0 +1,18 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.pipeworx-io/sec-fundamentals",
+  "title": "Sec Fundamentals",
+  "description": "SEC Fundamentals: point-in-time US public company financials, with no look-ahead.",
+  "version": "0.1.0",
+  "websiteUrl": "https://pipeworx.io/packs/sec-fundamentals",
+  "repository": {
+    "url": "https://github.com/pipeworx-io/mcp-sec-fundamentals",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://gateway.pipeworx.io/sec-fundamentals/mcp"
+    }
+  ]
+}

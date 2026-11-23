@@ -1,0 +1,149 @@
+[
+  {
+    "name": "sec_fundamentals_as_of",
+    "description": "POINT-IN-TIME company fundamentals with no look-ahead: what a US public company's financial statements said ON A GIVEN DATE, using only values the company had FILED with the SEC on or before that date. A later restatement cannot leak backwards: ask for 2009-12-31 and you get the figure as first reported, ask for 2010-02-01 and you get the restated one. Send `company` (ticker, CIK or exact company name) and `as_of` (YYYY-MM-DD; omit for today). Returns, for each requested standard concept (revenue, net_income, eps_diluted, total_assets, total_liabilities, equity, cash, operating_cash_flow, capex, long_term_debt, shares_outstanding by default; 70+ available, see sec_fundamentals_concepts), the most recent reporting periods known on that date, newest first, each with value, period start and end, calendar `period` label, filing date, form, accession and whether that period had already been restated by then. `period` selects annual, quarterly (discrete quarters) or all windows (including 6- and 9-month year-to-date). Discrete Q4 is not reported by filers and is not derived here; use edgar_company_concept for derived Q4 on a live lookup. An `as_of` before the company's first filing returns found:false with empty_reason as_of_before_first_filing and the earliest filing date, never an empty success. Covers XBRL-era filings (2009 onward). Every response carries `data_as_of` (newest filing in the data) and `source`. For one line's full revision history use sec_fundamentals_restatements; for a cross-company screen use sec_fundamentals_frame.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "company": {
+          "type": "string",
+          "description": "Ticker (\"AAPL\", \"BRK-B\"), CIK (\"320193\") or exact company name."
+        },
+        "as_of": {
+          "type": "string",
+          "description": "YYYY-MM-DD. Only values filed on or before this date are used. Omit for today."
+        },
+        "concepts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Standard concept keys such as \"revenue\", \"net_income\", \"total_assets\" (list with sec_fundamentals_concepts), or [\"all\"] for every concept the company reports. Friendly aliases like \"sales\" or \"eps\" are accepted. Default: 11 headline concepts."
+        },
+        "period": {
+          "type": "string",
+          "enum": [
+            "annual",
+            "quarterly",
+            "all"
+          ],
+          "description": "annual (default): fiscal-year flows and fiscal-year-end balances. quarterly: discrete quarters and quarter-end balances. all: every window, including year-to-date."
+        },
+        "periods": {
+          "type": "number",
+          "description": "How many most recent reporting periods per concept, 1 to 40. Default 1 for annual, 4 for quarterly, 8 for all."
+        }
+      },
+      "required": [
+        "company"
+      ]
+    }
+  },
+  {
+    "name": "sec_fundamentals_restatements",
+    "description": "Full REVISION HISTORY of one financial line for one US public company: every reporting period whose reported value changed between filings, with each version, the date it was filed, the form and accession, and the change in absolute and percent terms. Use it to see how Apple's fiscal 2007 revenue moved from 24,006M to 24,578M when a later filing recast it, or to check whether a figure you pulled earlier has since been revised. Send `company` (ticker, CIK or exact name) and `concept` (standard key such as \"revenue\", \"net_income\", \"total_assets\", \"eps_diluted\"; list with sec_fundamentals_concepts). Optional `period_end` (YYYY-MM-DD) narrows to one reporting period, `as_of` hides versions filed after that date, `include_unrevised:true` also lists periods that never changed. Only the first filing of each distinct value is listed (a later filing repeating the same number is not a revision). Stock splits show up as revisions of per-share and share-count lines. Covers XBRL-era filings (2009 onward); the original pre-XBRL report of an older period is not in the data, so its first version here is the earliest XBRL filing that carried it. Every response carries `data_as_of` and `source`.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "company": {
+          "type": "string",
+          "description": "Ticker, CIK or exact company name."
+        },
+        "concept": {
+          "type": "string",
+          "description": "Standard concept key, e.g. \"revenue\", \"net_income\", \"total_assets\"."
+        },
+        "period_end": {
+          "type": "string",
+          "description": "Optional YYYY-MM-DD: only the reporting period ending on this date."
+        },
+        "as_of": {
+          "type": "string",
+          "description": "Optional YYYY-MM-DD: ignore versions filed after this date."
+        },
+        "include_unrevised": {
+          "type": "boolean",
+          "description": "Also list periods whose value never changed. Default false."
+        },
+        "limit": {
+          "type": "number",
+          "description": "Max periods returned, newest first, 1 to 200. Default 50."
+        }
+      },
+      "required": [
+        "company",
+        "concept"
+      ]
+    }
+  },
+  {
+    "name": "sec_fundamentals_frame",
+    "description": "CROSS-COMPANY screen of one financial concept in one period, as known on a date: every US filer's value of (for example) revenue for CY2023, or total_assets at CY2024Q2I, ranked, with no look-ahead. Send `concept` (standard key, e.g. \"revenue\", \"net_income\", \"total_assets\", \"operating_cash_flow\"; see sec_fundamentals_concepts) and `period` in calendar form: CY2023 (a full year), CY2023Q1 (a discrete quarter) or CY2023Q4I (a balance-sheet date; the I is added for you on balance-sheet concepts, and \"2023\" means CY2023Q4I there). Fiscal periods are aligned to the nearest calendar period, as in the SEC frames convention (a September fiscal year end lands in the calendar year that holds most of the fiscal year). `as_of` (YYYY-MM-DD, default today) keeps only values filed on or before it, so a later restatement or a company that had not yet filed cannot change the answer. Optional `min_value`, `max_value`, `sort` (desc default, asc) and `limit` (1 to 500, default 50) shape the screen; `count_total` reports how many companies matched before the cut. Each row has company name, ticker, CIK, value, period start and end, filing date, form and accession. An `as_of` before any filing of that period returns found:false with the earliest filing date. Every response carries `data_as_of` and `source`.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "concept": {
+          "type": "string",
+          "description": "Standard concept key, e.g. \"revenue\", \"net_income\", \"total_assets\"."
+        },
+        "period": {
+          "type": "string",
+          "description": "CY2023 (year), CY2023Q1 (quarter) or CY2023Q4I (balance-sheet date). \"2023\", \"2023Q1\" and \"2023Q4I\" are accepted."
+        },
+        "as_of": {
+          "type": "string",
+          "description": "YYYY-MM-DD. Only values filed on or before this date. Omit for today."
+        },
+        "sort": {
+          "type": "string",
+          "enum": [
+            "desc",
+            "asc"
+          ],
+          "description": "Rank by value, largest first (default) or smallest first."
+        },
+        "min_value": {
+          "type": "number",
+          "description": "Keep values at or above this number (same unit as the concept)."
+        },
+        "max_value": {
+          "type": "number",
+          "description": "Keep values at or below this number."
+        },
+        "limit": {
+          "type": "number",
+          "description": "Rows returned, 1 to 500. Default 50."
+        }
+      },
+      "required": [
+        "concept",
+        "period"
+      ]
+    }
+  },
+  {
+    "name": "sec_fundamentals_concepts",
+    "description": "List the standard financial concepts the SEC fundamentals tools understand: the short key to pass as `concept` (revenue, net_income, total_assets, eps_diluted, operating_cash_flow, capex, long_term_debt, shares_outstanding and about 70 more), its label, statement (income, balance, cashflow, per_share, cover, other), whether it is a duration (flow) or a balance at a date (instant), its unit, and the ordered XBRL tags it is read from (the first tag a filer reports for a period wins, so companies that changed tags still get one continuous series). Filter with `statement` or a `search` word. Also returns friendly aliases (\"sales\" for revenue, \"eps\" for eps_diluted) and the store's `data_as_of`, company count and period coverage. Call this first when you do not know the concept key. Every response carries `data_as_of` and `source`.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "statement": {
+          "type": "string",
+          "enum": [
+            "income",
+            "balance",
+            "cashflow",
+            "per_share",
+            "cover",
+            "other"
+          ],
+          "description": "Only concepts from this statement."
+        },
+        "search": {
+          "type": "string",
+          "description": "Case-insensitive word matched against key, label and tags."
+        }
+      }
+    }
+  }
+]

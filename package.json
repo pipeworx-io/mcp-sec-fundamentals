@@ -1,0 +1,33 @@
+{
+  "name": "@pipeworx/mcp-sec-fundamentals",
+  "version": "0.1.0",
+  "description": "SEC Fundamentals: point-in-time US public company financials, with no look-ahead.",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./tools.json": "./tools.json",
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "mcp-sec-fundamentals": "bin/cli.js"
+  },
+  "files": ["bin/", "lib/", "tools.json", "server.json"],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": ["mcp", "mcp-server", "model-context-protocol", "pipeworx", "sec-fundamentals"],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pipeworx-io/mcp-sec-fundamentals.git"
+  },
+  "mcpName": "io.github.pipeworx-io/sec-fundamentals",
+  "pipeworx": {
+    "mode": "gateway",
+    "slug": "sec-fundamentals",
+    "gatewaySlug": "sec-fundamentals",
+    "sourceHash": "v1-28aef5a94eec95606afdaaefd29eb3a6217168ced563842b800086cb1ce3a785",
+    "sourceCommit": "fd91339a8d39c3cffb5f17eb093d38ab9f545199"
+  }
+}
